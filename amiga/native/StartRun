@@ -1,0 +1,3 @@
+FailAt 10
+Stack 262144
+Termic:TermicAgent --run

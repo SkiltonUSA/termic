@@ -1,0 +1,15 @@
+FailAt 10
+Execute Termic:Setup
+CD Termic:Project
+If EXISTS Program
+  Delete Program
+EndIf
+vc +aos68k -cpu=68020 -O1 main.c -o Program.new -lamiga >build.log
+If WARN
+  Type build.log
+  Quit 20
+EndIf
+Rename Program.new Program
+Protect Program +e
+Echo "Native Amiga build succeeded."
+Type build.log

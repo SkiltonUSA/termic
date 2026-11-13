@@ -1,0 +1,10 @@
+; Execute after assigning Termic: to this installation drawer.
+FailAt 10
+Stack 262144
+SetEnv VBCC Termic:SDK/vbcc_target_m68k-amigaos
+Assign VBCC: Termic:SDK/vbcc_target_m68k-amigaos
+Path Termic:SDK/vbcc_bin_amigaos68k/bin ADD
+Assign vincludeos3: Termic:SDK/vbcc_target_m68k-amigaos/targets/m68k-amigaos/include
+Assign vincludeos3: Termic:SDK/NDK/Include_H ADD
+Assign vincludeos3: Termic:SDK/NDK/SANA+RoadshowTCP-IP/netinclude ADD
+Assign vlibos3: Termic:SDK/vbcc_target_m68k-amigaos/targets/m68k-amigaos/lib

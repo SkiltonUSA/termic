@@ -1,0 +1,23 @@
+; Assign Termic: to the unpacked drawer before executing this script.
+; Extracts only the SDKs supplied in this drawer. Does not edit User-Startup.
+FailAt 10
+CD Termic:SDK
+If NOT EXISTS vbcc_bin_amigaos68k/bin/vc
+  lha -q x vbcc-bin.lha
+EndIf
+If NOT EXISTS vbcc_target_m68k-amigaos/config/aos68k
+  lha -q x vbcc-target.lha
+EndIf
+If NOT EXISTS NDK
+  MakeDir NDK
+EndIf
+If NOT EXISTS NDK/Include_H/exec/types.h
+  CD NDK
+  lha -q x /ndk.lha
+  CD /
+EndIf
+If NOT EXISTS AmiSSL/Developer/include/openssl/ssl.h
+  lha -q x amissl-sdk.lha
+EndIf
+Execute Termic:Setup
+Echo "SDK installed. Execute Termic:BuildNative to rebuild Termic locally."

@@ -1,0 +1,1 @@
+Read main.c. Change the counter step to 2 and update its label. Build the project and fix any compiler errors. Do not run it.

@@ -1,0 +1,27 @@
+FailAt 10
+Execute Termic:Setup
+CD Termic:Source
+; Crypto runs in AmiSSL. Keep the small transport unit at O0.
+vc +aos68k -cpu=68020 -O0 -ITermic:SDK/AmiSSL/Developer/include -c tls.c -o tls.o
+If WARN
+  Quit 20
+EndIf
+vc +aos68k -cpu=68020 -O1 worker.c agent.c files.c http.c tls.o vendor/cJSON.c -o Termic:TermicAgent.new -lamiga -lmieee
+If WARN
+  Quit 20
+EndIf
+vc +aos68k -cpu=68020 -O1 gui.c -o Termic:TermicNative.new -lamiga
+If WARN
+  Quit 20
+EndIf
+If EXISTS Termic:TermicAgent
+  Delete Termic:TermicAgent
+EndIf
+Rename Termic:TermicAgent.new Termic:TermicAgent
+If EXISTS Termic:TermicNative
+  Delete Termic:TermicNative
+EndIf
+Rename Termic:TermicNative.new Termic:TermicNative
+Protect Termic:TermicAgent +e
+Protect Termic:TermicNative +e
+Echo "Termic native applications built on this Amiga."

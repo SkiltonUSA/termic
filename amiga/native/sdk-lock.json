@@ -1,0 +1,18 @@
+{
+  "vbcc-bin.lha": {
+    "url": "https://aminet.net/dev/c/vbcc_bin_amigaos68k.lha",
+    "sha256": "0a75cf9da15d1613554e43b09c6db59e0a05d945e358f1b95d5b32d9c637b7be"
+  },
+  "vbcc-target.lha": {
+    "url": "https://aminet.net/dev/c/vbcc_target_m68k-amiga.lha",
+    "sha256": "ec734d7115359cdb5d1c70349284ecbd5712ef47e8bc28d4150117c6f8c73289"
+  },
+  "ndk.lha": {
+    "url": "https://aminet.net/dev/misc/NDK3.2.lha",
+    "sha256": "96cabd4ad683dced632e147bf86dee0f50dcb1254386216c25c362916a6409bb"
+  },
+  "amissl-sdk.lha": {
+    "url": "https://github.com/jens-maus/amissl/releases/download/5.23/AmiSSL-5.23-SDK.lha",
+    "sha256": "3eabab3119e00590ac18ff914b5a7a281764f18fa26cf0db7dd95c661b14e367"
+  }
+}

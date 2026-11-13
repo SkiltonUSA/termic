@@ -1,0 +1,71 @@
+TERMIC NATIVE AMIGA
+
+Native Workbench client and local C development environment for AmigaOS 3.x.
+Requires 68020+, GadTools, Roadshow (or compatible bsdsocket.library), AmiSSL
+5.23 or a compatible newer installation, and a correctly set system clock.
+This is a first native client, with one C project. It is not the Tauri app.
+
+INSTALL
+Unpack the archive into a new drawer. In an Amiga Shell, assign the drawer:
+  Assign Termic: Work:TermicNative
+  Execute Termic:InstallSDK
+  Execute Termic:BuildNative
+Replace Work:TermicNative with the location you chose.
+Create the Workbench icon if needed:
+  Termic:TermicNative --icon Termic:TermicNative
+Then double-click TermicNative. It assigns Termic: to its own drawer.
+No Mac, Docker, bridge, or LAN model server is required at runtime.
+
+USE
+Source: edit Project/main.c in Ed. Save and close Ed before building.
+Build: compile locally with VBCC. Output: Project/Program and build.log.
+Run: launch the compiled program. Only this button runs generated code.
+Task: edit Project/task.txt. The sample asks for a counter change.
+API key: enter your OpenAI API key as one line in Config/api-key.
+Model: choose an API model your account can use. Default: gpt-5-mini.
+HTTPS test: verified connection to OpenAI, expecting HTTP 401 without a key.
+Agent: send the task to the cloud; allow reading/writing main.c and builds.
+Log: show the transcript of agent responses, tools and compiler diagnostics.
+Ed: press Escape, type X, then Return to save and exit.
+
+The key stays in the local Config/api-key file. Do not put it in chat,
+screenshots, Git, project source or backups shared with others. Classic
+AmigaOS has no per-user file isolation. This file is not encrypted.
+The agent sends the task, main.c and compiler results to OpenAI. Responses
+are stored by the API to continue the tool conversation. It makes at most
+eight requests per run. API access and usage billing must be enabled.
+The key is sent only as the HTTPS Authorization header to api.openai.com.
+There is no plaintext fallback or disabled certificate verification.
+
+The agent keeps the prior edit in Project/main.c.bak. Review source before
+Run. Compiler jobs and generated programs have normal AmigaOS access;
+the fixed tool list is not an operating-system sandbox. The client does
+not expose a shell-command tool to the model.
+
+LIMITS
+One main.c file, at most 32 KiB; task at most 8 KiB; tool build log 16 KiB;
+HTTP response 256 KiB; each network exchange 120 seconds after DNS lookup.
+DNS uses the networking stack's resolver timeout. Ctrl-C cancels socket
+waits; the worker also checks between model steps. No streaming, Git,
+parallel agents or multi-file projects in this first client.
+The window remains responsive while a separate DOS process runs the job.
+If a worker crashes, remove Project/.busy only after checking it stopped.
+Do not run two installations at once: the Termic: assign selects one root.
+
+ZZ9000
+Uses the existing Workbench/RTG screen. No ARM payload is launched and no
+firmware, core ownership, DDR address, cache or display mode is changed.
+Compilation, file tools and HTTPS currently run on the 68k. ARM acceleration
+needs a separate measured compute workload and verified core reservation.
+
+LICENSES
+Termic source: GNU AGPLv3, see LICENSE. cJSON 1.7.19: MIT, see
+Source/vendor/LICENSE.cJSON. The generated AmiSSL/OpenSSL binding subset is
+Apache-2.0, see Source/vendor/LICENSE.AmiSSL. SDK archives retain their
+upstream licenses.
+This product includes software developed by the University of California,
+Berkeley and its contributors (Roadshow networking headers).
+
+Sources: https://github.com/SkiltonUSA/termic
+API: https://developers.openai.com/api/docs/guides/function-calling
+AmiSSL: https://github.com/jens-maus/amissl/releases/tag/5.23

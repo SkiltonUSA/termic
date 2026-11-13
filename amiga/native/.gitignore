@@ -1,0 +1,13 @@
+/Config/
+/SDK/
+/TermicNative
+/TermicNative.info
+/TermicAgent
+*.o
+*.asm
+*.new
+/Project/Program
+/Project/build.log
+/Project/transcript.txt
+/Project/main.c.bak
+/Project/.busy/
