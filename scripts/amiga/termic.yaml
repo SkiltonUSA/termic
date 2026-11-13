@@ -6,6 +6,8 @@ scripts:
   files_to_copy:
     - .context/amiga-workspace.json
   run_scripts:
+    - label: Build Workbench demo
+      command: python3 scripts/amiga/workspace.py demo-build
     - label: Amiga environment check
       command: python3 scripts/amiga/workspace.py doctor
     - label: Amiga protocol tests

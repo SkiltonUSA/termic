@@ -104,3 +104,16 @@ on physical hardware. It does not verify Workbench GUI interaction, ARexx,
 source-level stepping, ZZ9000 ARM code, or the separate native compiler
 experiment. Termic's graphical Run controls have not been manually tested;
 this session exercised their configured command-line actions.
+
+## Native Workbench example
+
+The [Workbench demo](../amiga/workbench-demo/README.md) is a native C example
+with Increment, Reset and Quit controls. Build this checkout's source with
+`python3 scripts/amiga/workspace.py demo-build`, or the new **Build Workbench
+demo** Run action. It uses the linked environment's pinned compiler image;
+output stays in this checkout's `.context/amiga-demo/`.
+
+Physical transfer/readback, keyboard increment/reset/quit, icon generation and
+Workbench launch via `WBLoad` passed. The demo is not an Amiga port of Termic;
+it demonstrates the native application build workflow. Mouse interaction and
+Termic's graphical Run controls remain manual acceptance work.

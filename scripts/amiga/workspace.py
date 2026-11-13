@@ -40,7 +40,7 @@ def resolve_workspace():
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action', choices=['configure', *TARGETS])
+    parser.add_argument('action', choices=['configure', 'demo-build', *TARGETS])
     parser.add_argument('workspace', nargs='?')
     args = parser.parse_args(argv)
     try:
@@ -56,6 +56,24 @@ def main(argv=None):
             parser.error('workspace path is only accepted with configure')
         path = resolve_workspace()
         print(f'Amiga {args.action}: {path}', flush=True)
+        if args.action == 'demo-build':
+            settings = json.loads((path / '.context/amiga/settings.json').read_text())
+            pin = json.loads((path / 'amiga/upstream.json').read_text())
+            command = settings['container_command']
+            if not isinstance(command, list) or not command or not all(
+                    isinstance(part, str) and part for part in command):
+                raise ValueError('container_command must be a nonempty array of strings')
+            result = subprocess.run(command + [
+                'run', '--rm', '--platform', 'linux/amd64',
+                '-v', f'{ROOT}:/work', '-w', '/work/amiga/workbench-demo',
+                pin['image'], 'make'], check=False)
+            if result.returncode:
+                return result.returncode
+            binary = ROOT / '.context/amiga-demo/TermicDemo'
+            if binary.read_bytes()[:4] != b'\x00\x00\x03\xf3':
+                raise ValueError('Build did not produce an Amiga Hunk executable')
+            print(f'Workbench application: {binary}')
+            return 0
         return subprocess.run(['make', '-C', str(path), TARGETS[args.action]],
                               check=False).returncode
     except (OSError, ValueError, KeyError) as error:

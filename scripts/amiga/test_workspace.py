@@ -1,4 +1,5 @@
 import importlib.util
+import json
 from pathlib import Path
 import tempfile
 import unittest
@@ -50,6 +51,26 @@ class WorkspaceTests(unittest.TestCase):
         with patch.object(workspace, 'CONFIG', self.config), patch.dict('os.environ', {}, clear=True), patch.object(workspace.subprocess, 'run') as run:
             self.assertEqual(workspace.main(['build']), 1)
             run.assert_not_called()
+
+    def test_demo_build_uses_pinned_image_and_rejects_wrong_binary(self):
+        settings = self.root / '.context/amiga/settings.json'
+        settings.parent.mkdir(parents=True)
+        settings.write_text(json.dumps({'container_command': ['podman', '--connection', 'test']}))
+        (self.root / 'amiga/upstream.json').write_text(json.dumps({'image': 'compiler@sha256:test'}))
+        output = self.root / '.context/amiga-demo/TermicDemo'
+        output.parent.mkdir(parents=True)
+        output.write_bytes(b'not an Amiga executable')
+        with patch.object(workspace, 'ROOT', self.root), patch.dict('os.environ', {'TERMIC_AMIGA_WORKSPACE': str(self.root)}), patch.object(workspace.subprocess, 'run') as run:
+            run.return_value.returncode = 0
+            self.assertEqual(workspace.main(['demo-build']), 1)
+            run.assert_called_once_with([
+                'podman', '--connection', 'test', 'run', '--rm', '--platform',
+                'linux/amd64', '-v', f'{self.root}:/work', '-w',
+                '/work/amiga/workbench-demo', 'compiler@sha256:test', 'make'], check=False)
+            output.write_bytes(b'\x00\x00\x03\xf3test')
+            self.assertEqual(workspace.main(['demo-build']), 0)
+            run.return_value.returncode = 7
+            self.assertEqual(workspace.main(['demo-build']), 7)
 
 
 if __name__ == '__main__':
