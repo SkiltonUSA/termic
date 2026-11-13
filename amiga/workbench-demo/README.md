@@ -56,7 +56,8 @@ Tool icon was retrieved and Workbench launch via `WBLoad` reopened the window.
 The screenshots are local under `.context/amiga-demo/` and are not committed.
 Mouse clicks, the close gadget and visual refresh after window obstruction
 still require manual checks. No emulator/AGA-only display test was performed.
-Termic's graphical Run controls remain unverified locally.
+Termic's Run-menu build action passed the opt-in UI acceptance test; a human
+visual/interaction pass is still pending.
 
 The implementation follows the documented GadTools message and refresh
 lifecycle: [AmigaOS GadTools reference](https://wiki.amigaos.net/wiki/GadTools_Gadgets).

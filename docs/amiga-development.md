@@ -102,8 +102,8 @@ Local evidence is in this checkout's gitignored `.context/amiga-acceptance/`.
 This verifies the existing pinned build's transfer and instrumented execution
 on physical hardware. It does not verify Workbench GUI interaction, ARexx,
 source-level stepping, ZZ9000 ARM code, or the separate native compiler
-experiment. Termic's graphical Run controls have not been manually tested;
-this session exercised their configured command-line actions.
+experiment. Termic's graphical Run controls were subsequently exercised by the opt-in
+e2e check below. A human visual/interaction pass remains outstanding.
 
 ## Native Workbench example
 
@@ -116,4 +116,34 @@ output stays in this checkout's `.context/amiga-demo/`.
 Physical transfer/readback, keyboard increment/reset/quit, icon generation and
 Workbench launch via `WBLoad` passed. The demo is not an Amiga port of Termic;
 it demonstrates the native application build workflow. Mouse interaction and
-Termic's graphical Run controls remain manual acceptance work.
+a human pass through Termic's graphical Run controls remain manual
+acceptance work.
+
+## Termic application and UI acceptance
+
+A normal debug application (without the e2e feature) was built and installed
+locally as `/Applications/Termic.app`. Launch it from Finder or with
+`open -a Termic`. It uses the separate `termic_dev` settings/data directory.
+The current checkout is registered as the `muscat` project. Open a task in
+that project to use the Run dropdown, including **Amiga environment check**
+and **Build Workbench demo**. Agent logins remain the user's existing ones.
+
+The opt-in `e2e/specs/amiga.e2e.ts` test runs these two named commands through
+the actual Run dropdown, verifies their run tabs produce output and complete
+without the failure flag, and checks a freshly generated Hunk executable.
+It passed on macOS. The test uses an isolated fixture project and requires the
+linked workspace plus the running pinned compiler VM; it does not deploy to
+hardware. Ordinary e2e runs skip it.
+
+```sh
+node scripts/e2e-seed.mjs
+npm run e2e:build
+TERMIC_E2E_AMIGA=1 TERMIC_E2E_VISIBLE=1 npm run test:e2e -- --spec e2e/specs/amiga.e2e.ts
+```
+
+Type checking of the e2e sources also passed. Only this focused UI spec was
+run for this integration, not the complete application test suite. Captures
+under `.context/termic-amiga-*.png` show the test profile's controls, but did
+not show terminal text; they are not proof of terminal rendering correctness.
+The process-output timestamps and generated executable establish execution.
+A human pass still needs to confirm terminal text, focus and button behaviour.
