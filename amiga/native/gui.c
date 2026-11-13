@@ -85,8 +85,7 @@ enum
     FOCUSFILE,
     FOCUSEDITOR,
     FOCUSCOMMIT,
-    FOCUSCOMMAND,
-    COLOURS
+    FOCUSCOMMAND
 };
 struct Job
 {
@@ -856,7 +855,7 @@ static int build_ui(void)
     filename = label("main.c"), Child, HGroup, Child, button("Save", SAVE), Child,
     button("Undo", UNDO), Child, button("Redo", REDO), Child, button("Cut", CUT), Child,
     button("Copy", COPY), Child, button("Paste", PASTE), End, Child, editor(&source, 0), Child,
-    HGroup, Child, button("Refresh colours", COLOURS), Child, findtext = entry(120), Child,
+    HGroup, Child, findtext = entry(120), Child,
     button("Find", FIND), Child, button("Next", FINDNEXT), End, End, Child, VGroup, Child,
     editor(&output, 1), Child, label("AmigaDOS command (runs in this workspace)"), Child,
     command = entry(1024), Child, HGroup, Child, button("Execute", SHELL), Child,
@@ -1165,18 +1164,6 @@ int main(int argc, char **argv)
                 break;
             case NEWTASK:
                 create_workspace(1);
-                break;
-            case COLOURS:
-                if (*opened && save_current())
-                {
-                    LONG x = value(source, MUIA_TextEditor_CursorX);
-                    LONG y = value(source, MUIA_TextEditor_CursorY);
-                    join(path, current, opened);
-                    content(source, path, "");
-                    set(source, MUIA_TextEditor_CursorY, y);
-                    set(source, MUIA_TextEditor_CursorX, x);
-                    message("Saved and recoloured. Reloading resets editor undo history.");
-                }
                 break;
             case SAVE:
                 if (save_current())

@@ -19,8 +19,7 @@ hardware work. ZZ9000 ARM programs are a separate target from AmigaOS/68k.
 `docs/hero.png`: projects/tasks on the left, a tabbed workspace in the
 centre and files on the right. TextEditor.mcc provides embedded editing,
 clipboard operations, undo/redo and search. C/header files receive lexical
-syntax colours on load. **Refresh colours** saves and reloads the current file,
-preserving the cursor but resetting undo history; ordinary saves preserve undo.
+syntax colours on load; ordinary saves preserve undo history.
 The editor exports unstyled source. Literal ESC bytes are rejected rather than
 interpreted as formatting. The source editor uses a black background with bright syntax colours and light plain text. It replaces the earlier GadTools
 launcher and external Ed workflow. The [native ReadMe](../amiga/native/ReadMe)
