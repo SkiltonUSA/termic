@@ -11,6 +11,28 @@ SOURCE = ROOT / "amiga/native"
 
 
 class NativeProtocolTests(unittest.TestCase):
+    def test_syntax_colours(self):
+        with tempfile.TemporaryDirectory() as directory:
+            binary = str(Path(directory) / "syntax")
+            subprocess.run(
+                [
+                    "cc",
+                    "-std=c99",
+                    "-Wall",
+                    "-Wextra",
+                    "-Werror",
+                    "-fsanitize=address,undefined",
+                    "-I",
+                    str(SOURCE),
+                    str(SOURCE / "syntax.c"),
+                    str(SOURCE / "tests/test_syntax.c"),
+                    "-o",
+                    binary,
+                ],
+                check=True,
+            )
+            subprocess.run([binary], check=True)
+
     def test_http_and_agent_loop(self):
         with tempfile.TemporaryDirectory() as directory:
             work = Path(directory)

@@ -61,6 +61,12 @@ Select a file to edit it in TextEditor.mcc. Save, Undo, Redo, Cut, Copy,
 Paste, Find and Next operate in the application. A successful save keeps
 previous contents in file.bak. File/workspace switches save pending edits;
 a failed save prevents switching. Source files are limited to 32 KiB.
+The source editor has a black background and light plain text.
+C/header files open with bright colours for keywords, functions, strings, numbers,
+comments and preprocessor directives. Refresh colours saves and reloads the
+file, keeping the cursor but resetting undo history. Ordinary Save does not
+reset undo or recolour while you type. Saved source contains no style codes.
+Literal ESC bytes in source are rejected to avoid interpreting them as styles.
 Task instructions are edited in the Agent tab, not in a second editor copy.
 
 BUILD AND RUN

@@ -2,6 +2,7 @@
  * operations run in TermicAgent processes with per-workspace locking. */
 #include "mui_compat.h"
 #include "native.h"
+#include "syntax.h"
 #include "workspace.h"
 #include <ctype.h>
 #include <devices/timer.h>
@@ -84,7 +85,8 @@ enum
     FOCUSFILE,
     FOCUSEDITOR,
     FOCUSCOMMIT,
-    FOCUSCOMMAND
+    FOCUSCOMMAND,
+    COLOURS
 };
 struct Job
 {
@@ -135,8 +137,10 @@ static Object *editor(Object **o, int readonly)
 {
     Object *slider;
     Object *g = HGroup, Child, *o = TextEditorObject, InputListFrame, MUIA_Font,
-           codefont ? (ULONG)codefont : MUIV_Font_Fixed, MUIA_TextEditor_ReadOnly, readonly,
-           MUIA_TextEditor_ImportHook, MUIV_TextEditor_ImportHook_Plain, MUIA_TextEditor_ExportHook,
+           codefont ? (ULONG)codefont : MUIV_Font_Fixed,
+           o == &source ? MUIA_Background : TAG_IGNORE, "2:r00000000,00000000,00000000",
+           MUIA_TextEditor_ReadOnly, readonly, MUIA_TextEditor_ImportHook,
+           MUIV_TextEditor_ImportHook_Plain, MUIA_TextEditor_ExportHook,
            MUIV_TextEditor_ExportHook_Plain, MUIA_TextEditor_WrapMode,
            MUIV_TextEditor_WrapMode_NoWrap, MUIA_CycleChain, 1, End, Child,
            slider = ScrollbarObject, End, End;
@@ -183,16 +187,33 @@ static void content(Object *o, const char *p, const char *fallback)
 {
     char *s = read_text(p, o == source ? SOURCE_LIMIT : o == prompt ? 8192 : RESPONSE_LIMIT);
     int valid = s != NULL || !exists(p);
+    if (o == source && s && strchr(s, 27))
+    {
+        free(s);
+        s = NULL;
+        valid = 0;
+    }
     if (o == source)
         source_loaded = valid;
     if (o == prompt)
         prompt_loaded = valid;
     if (!valid && (o == source || o == prompt))
     {
-        fallback = "File could not be loaded (binary, unreadable or above the editor size limit).";
+        fallback = "File could not be loaded (binary/escape codes, unreadable or above the editor "
+                   "size limit).";
         set(o, MUIA_TextEditor_ReadOnly, TRUE);
     }
-    set(o, MUIA_TextEditor_Contents, s ? s : fallback);
+    if (o == source)
+    {
+        int csyntax = strlen(p) >= 2 &&
+                      (!strcmp(p + strlen(p) - 2, ".c") || !strcmp(p + strlen(p) - 2, ".h"));
+        char *styled = syntax_colours(s ? s : fallback, csyntax);
+        set(o, MUIA_TextEditor_Contents, styled ? styled : (s ? s : fallback));
+        free(styled);
+        set(o, MUIA_TextEditor_Pen, 0xffe6edf3UL);
+    }
+    else
+        set(o, MUIA_TextEditor_Contents, s ? s : fallback);
     free(s);
     set(o, MUIA_TextEditor_HasChanged, FALSE);
 }
@@ -835,11 +856,12 @@ static int build_ui(void)
     filename = label("main.c"), Child, HGroup, Child, button("Save", SAVE), Child,
     button("Undo", UNDO), Child, button("Redo", REDO), Child, button("Cut", CUT), Child,
     button("Copy", COPY), Child, button("Paste", PASTE), End, Child, editor(&source, 0), Child,
-    HGroup, Child, findtext = entry(120), Child, button("Find", FIND), Child,
-    button("Next", FINDNEXT), End, End, Child, VGroup, Child, editor(&output, 1), Child,
-    label("AmigaDOS command (runs in this workspace)"), Child, command = entry(1024), Child, HGroup,
-    Child, button("Execute", SHELL), Child, button("Cancel job", CANCEL), End, End, Child, VGroup,
-    Child, HGroup, Child, button("Status", GITSTATUS), Child, button("Diff", DIFF), Child,
+    HGroup, Child, button("Refresh colours", COLOURS), Child, findtext = entry(120), Child,
+    button("Find", FIND), Child, button("Next", FINDNEXT), End, End, Child, VGroup, Child,
+    editor(&output, 1), Child, label("AmigaDOS command (runs in this workspace)"), Child,
+    command = entry(1024), Child, HGroup, Child, button("Execute", SHELL), Child,
+    button("Cancel job", CANCEL), End, End, Child, VGroup, Child, HGroup, Child,
+    button("Status", GITSTATUS), Child, button("Diff", DIFF), Child,
     button("Init repository", GITINIT), End, Child, editor(&review, 1), Child,
     label("Commit message (configure Git identity in the shell first)"), Child, commit = entry(256),
     Child, button("Stage source and commit", GITCOMMIT), End, Child, VGroup, Child,
@@ -905,6 +927,8 @@ static int build_ui(void)
         set(model, MUIA_String_Contents, s);
         free(s);
     }
+    set(source, MUIA_TextEditor_ExportHook, MUIV_TextEditor_ExportHook_NoStyle);
+    set(source, MUIA_TextEditor_PasteColors, FALSE);
     set(projectdrawer, MUIA_String_Contents, project_root);
     set(transcript, MUIA_Weight, 75);
     set(prompt, MUIA_Weight, 25);
@@ -1141,6 +1165,18 @@ int main(int argc, char **argv)
                 break;
             case NEWTASK:
                 create_workspace(1);
+                break;
+            case COLOURS:
+                if (*opened && save_current())
+                {
+                    LONG x = value(source, MUIA_TextEditor_CursorX);
+                    LONG y = value(source, MUIA_TextEditor_CursorY);
+                    join(path, current, opened);
+                    content(source, path, "");
+                    set(source, MUIA_TextEditor_CursorY, y);
+                    set(source, MUIA_TextEditor_CursorX, x);
+                    message("Saved and recoloured. Reloading resets editor undo history.");
+                }
                 break;
             case SAVE:
                 if (save_current())
