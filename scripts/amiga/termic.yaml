@@ -1,0 +1,18 @@
+# Termic repo config: https://termic.dev
+version: 1
+scripts:
+  setup: python3 scripts/amiga/workspace.py doctor
+  run: python3 scripts/amiga/workspace.py build
+  files_to_copy:
+    - .context/amiga-workspace.json
+  run_scripts:
+    - label: Amiga environment check
+      command: python3 scripts/amiga/workspace.py doctor
+    - label: Amiga protocol tests
+      command: python3 scripts/amiga/workspace.py test
+    - label: Amiga simulator
+      command: python3 scripts/amiga/workspace.py simulator
+    - label: Amiga hardware bridge
+      command: python3 scripts/amiga/workspace.py hardware
+    - label: Amiga emulator
+      command: python3 scripts/amiga/workspace.py emulator

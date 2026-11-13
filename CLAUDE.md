@@ -227,6 +227,7 @@ yours.
 
 Deeper references — read when working in that area:
 
+- [docs/amiga-development.md](docs/amiga-development.md) — Amiga build actions, linked DevBench workspace, and hardware verification limits
 - [docs/ipc.md](docs/ipc.md) — Tauri commands, critical payload shapes, long-running IPC discipline
 - [docs/i18n.md](docs/i18n.md) — i18next namespaces, wiring rules (hooks vs i18n.t, Trans, plurals), zh-CN conventions, parity test
 - [docs/data-model.md](docs/data-model.md) — data dirs, Project/Task/Settings/Tab entities
