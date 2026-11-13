@@ -6,14 +6,23 @@ vc +aos68k -cpu=68020 -O0 -ITermic:SDK/AmiSSL/Developer/include -c tls.c -o tls.
 If WARN
   Quit 20
 EndIf
-vc +aos68k -cpu=68020 -O1 worker.c agent.c files.c http.c tls.o vendor/cJSON.c -o Termic:TermicAgent.new -lamiga -lmieee
+vc +aos68k -cpu=68020 -O1 worker.c agent.c files.c workspace.c http.c tls.o vendor/cJSON.c -o Termic:TermicAgent.new -lamiga -lmieee
 If WARN
   Quit 20
 EndIf
-vc +aos68k -cpu=68020 -O1 gui.c -o Termic:TermicNative.new -lamiga
+vc +aos68k -cpu=68020 -O1 -ITermic:SDK/MUI/Developer/C/Include -ITermic:SDK/MCC_TextEditor/Developer/C/include gui.c files.c workspace.c -o Termic:TermicNative.new -lamiga
 If WARN
   Quit 20
 EndIf
+vc +aos68k -cpu=68020 -O1 storage.c files.c workspace.c -o Termic:TermicStorage.new -lamiga
+If WARN
+  Quit 20
+EndIf
+If EXISTS Termic:TermicStorage
+  Delete Termic:TermicStorage
+EndIf
+Rename Termic:TermicStorage.new Termic:TermicStorage
+Protect Termic:TermicStorage +e
 If EXISTS Termic:TermicAgent
   Delete Termic:TermicAgent
 EndIf

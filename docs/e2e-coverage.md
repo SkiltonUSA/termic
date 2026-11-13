@@ -36,7 +36,7 @@ until `make e2e` is green and this file reflects it.
 | Area | What's asserted | Spec |
 |---|---|---|
 | ✅ Amiga build actions (opt-in) | Run-menu environment check and real pinned-compiler build; successful run-tab completion and fresh Hunk output. Requires `TERMIC_E2E_AMIGA=1` and a configured Amiga workspace/VM; no deployment | `amiga.e2e.ts` |
-| ✅ Native Amiga client (separate hardware suite) | Verified HTTPS probe, native project compilation, sample keyboard controls, Workbench launch/Quit and Build action creating a fresh executable. Captures inspected; no authenticated model call or mouse test | `scripts/amiga/accept_native.py` |
+| Native MUI Amiga workspace (separate hardware suite) | Isolated task creation, panel captures, local compilation, embedded editing/backups, local Git operations, shell/build failures, preservation of the previous executable, program Run and last-workspace restoration. Includes a focused stale-output regression. Requires physical hardware; no authenticated model call or injected mouse gestures | `scripts/amiga/accept_mui.py` |
 | ✅ App shell | Renders; `__termic` exposes real store state | `app.e2e.ts` |
 | ✅ Idle terminal status traffic | 100 cursor queries are answered through real xterm and a real PTY with zero tab-state writes and advancing raw liveness; subsequent text still updates output activity (POSIX tty fixture) | `agent.e2e.ts` |
 | ✅ Agent customizations | Initializes and opens the current profile folder, shows file-layout guidance and the actual path, preserves edited skills, persists the profile default, retains project overrides, and recovers from initialization errors | `customizations.e2e.ts` |

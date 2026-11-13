@@ -1,0 +1,27 @@
+FailAt 10
+; Original archives retain their licences and documentation.
+lha x Termic:SDK/mui38dev.lha Termic:SDK/
+lha x Termic:SDK/texteditor.lha Termic:SDK/
+If NOT EXISTS MUI:Libs/mui/TextEditor.mcc
+  Copy Termic:SDK/MCC_TextEditor/Libs/MUI/AmigaOS3/TextEditor.mcc MUI:Libs/mui/
+  Copy Termic:SDK/MCC_TextEditor/Libs/MUI/AmigaOS3/TextEditor.mcp MUI:Libs/mui/
+EndIf
+If NOT EXISTS Termic:Tools
+  MakeDir Termic:Tools
+EndIf
+lha x Termic:SDK/amiga-git.lha Termic:Tools/
+Protect Termic:Tools/amiga-git/git +e
+If NOT EXISTS Termic:Template
+  MakeDir Termic:Template
+  Copy Termic:Source/Template/#? Termic:Template/
+EndIf
+Echo "MUI editor and native Git installed. MUI 3.8 or newer must already be installed."
+If NOT EXISTS Termic:SDK/DiskImage
+  MakeDir Termic:SDK/DiskImage
+EndIf
+lha -q x Termic:SDK/diskimage.lha Termic:SDK/DiskImage/
+Copy Termic:SDK/DiskImage/DiskImageCtrl Termic:Tools/
+Protect Termic:Tools/DiskImageCtrl +e
+If NOT EXISTS DEVS:diskimage.device
+  Copy Termic:SDK/DiskImage/diskimage.device DEVS:
+EndIf

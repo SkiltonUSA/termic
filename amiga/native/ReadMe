@@ -1,71 +1,155 @@
-TERMIC NATIVE AMIGA
+TERMIC AMIGA WORKSPACE
 
-Native Workbench client and local C development environment for AmigaOS 3.x.
-Requires 68020+, GadTools, Roadshow (or compatible bsdsocket.library), AmiSSL
-5.23 or a compatible newer installation, and a correctly set system clock.
-This is a first native client, with one C project. It is not the Tauri app.
+Native MUI development workspace for AmigaOS 3.x: projects and independent
+source-copy tasks, embedded source editing, cloud-agent conversations,
+local builds, program execution, AmigaDOS commands and local Git review.
+The application and compiler run on the Amiga. No Mac, Docker, DevBench or
+LAN model server is needed at runtime.
+
+REQUIREMENTS
+68020+, AmigaOS 3.2, MUI 3.8+, TextEditor.mcc 15.56, Fast RAM, VBCC and NDK.
+Cloud access needs Roadshow or compatible bsdsocket.library, AmiSSL with CA
+certificates, an accurate clock and an OpenAI API key. The bundled native
+Git client was verified with AmiSSL 5.27; install that runtime from its
+upstream distribution. The older 5.23 developer headers remain compatible.
+Git repositories require long filenames (PFS3/SFS or FFS with long names).
 
 INSTALL
-Unpack the archive into a new drawer. In an Amiga Shell, assign the drawer:
+Unpack into a new drawer. In an Amiga Shell:
   Assign Termic: Work:TermicNative
   Execute Termic:InstallSDK
+  Execute Termic:InstallUI
   Execute Termic:BuildNative
-Replace Work:TermicNative with the location you chose.
-Create the Workbench icon if needed:
   Termic:TermicNative --icon Termic:TermicNative
-Then double-click TermicNative. It assigns Termic: to its own drawer.
-No Mac, Docker, bridge, or LAN model server is required at runtime.
+Replace Work:TermicNative with your chosen drawer, then double-click the
+TermicNative icon. The application assigns Termic: to its own drawer.
+InstallUI adds TextEditor only if absent; it never replaces your MUI core.
+SDK archives include their original licences. Startup files are not edited.
+The AmiSSL 5.27 runtime archive is in SDK/amissl527.lha; extract it into a
+temporary drawer and run its original Install-AmiSSL installer if needed.
 
-USE
-Source: edit Project/main.c in Ed. Save and close Ed before building.
-Build: compile locally with VBCC. Output: Project/Program and build.log.
-Run: launch the compiled program. Only this button runs generated code.
-Task: edit Project/task.txt. The sample asks for a counter change.
-API key: enter your OpenAI API key as one line in Config/api-key.
-Model: choose an API model your account can use. Default: gpt-5-mini.
-HTTPS test: verified connection to OpenAI, expecting HTTP 401 without a key.
-Agent: send the task to the cloud; allow reading/writing main.c and builds.
-Log: show the transcript of agent responses, tools and compiler diagnostics.
-Ed: press Escape, type X, then Return to save and exit.
+On an FFS volume with 30-character filenames, optionally create independent
+64 MiB project storage after InstallUI and BuildNative:
+  Termic:TermicStorage --create
+This creates a new Projects.hdf file and initializes only that new image.
+It refuses an existing image or a disk-image unit owned by another device.
+Settings then uses TMGIT:Projects; Termic mounts that image automatically.
+No existing partition is formatted and no startup file is changed. Unit 7
+of diskimage.device is reserved for this optional volume. Use another
+long-filename drawer in Settings if the unit is needed by another app.
+To back up the image, close active jobs and use a Shell outside TMGIT:
+  Termic:TermicStorage --eject
+Copy Projects.hdf, then run Termic:TermicStorage to mount it again.
 
-The key stays in the local Config/api-key file. Do not put it in chat,
-screenshots, Git, project source or backups shared with others. Classic
-AmigaOS has no per-user file isolation. This file is not encrypted.
-The agent sends the task, main.c and compiler results to OpenAI. Responses
-are stored by the API to continue the tool conversation. It makes at most
-eight requests per run. API access and usage billing must be enabled.
-The key is sent only as the HTTPS Authorization header to api.openai.com.
-There is no plaintext fallback or disabled certificate verification.
+WORKSPACE
+Left: projects, project naming/import, tasks and task status.
+Centre: Agent, Editor, Build / Shell, Changes and Settings tabs.
+Right: editable C, header, text and Markdown files, plus new-file controls.
+Drag the dividers to resize panes. Disk fonts improve readability when
+Helvetica and Courier are available; otherwise MUI fonts are used.
 
-The agent keeps the prior edit in Project/main.c.bak. Review source before
-Run. Compiler jobs and generated programs have normal AmigaOS access;
-the fixed tool list is not an operating-system sandbox. The client does
-not expose a shell-command tool to the model.
+New project uses the clean Template drawer. Import source drawer copies
+regular editable files into a managed project. New task copies the selected
+workspace's source and build command into its own Tasks/task-NNNN drawer.
+It does not copy Git internals, credentials or conversation IDs. These are
+source snapshots, not Git worktrees. The installed amiga-git has no worktree
+command. Original Project/main.c remains available as the starter project.
+Names and task status are saved, and the last workspace reopens on launch.
 
-LIMITS
-One main.c file, at most 32 KiB; task at most 8 KiB; tool build log 16 KiB;
-HTTP response 256 KiB; each network exchange 120 seconds after DNS lookup.
-DNS uses the networking stack's resolver timeout. Ctrl-C cancels socket
-waits; the worker also checks between model steps. No streaming, Git,
-parallel agents or multi-file projects in this first client.
-The window remains responsive while a separate DOS process runs the job.
-If a worker crashes, remove Project/.busy only after checking it stopped.
-Do not run two installations at once: the Termic: assign selects one root.
+EDITOR
+Select a file to edit it in TextEditor.mcc. Save, Undo, Redo, Cut, Copy,
+Paste, Find and Next operate in the application. A successful save keeps
+previous contents in file.bak. File/workspace switches save pending edits;
+a failed save prevents switching. Source files are limited to 32 KiB.
+Task instructions are edited in the Agent tab, not in a second editor copy.
+
+BUILD AND RUN
+Build uses the current workspace, produces Program, and displays diagnostics
+in Build / Shell. The default compiles main.c with VBCC. Settings can save
+a different build command per workspace, including additional C files and
+libraries. It must produce Program.new; BuildProject promotes it on success.
+A failed build retains the last executable, so Run would launch that older build.
+MUI headers and mui_compat.h are on the installed include search path.
+Run launches the compiled program. Only an explicit Run or shell command
+runs generated executables. The shell field executes AmigaDOS commands in
+the selected workspace and displays their output here; it is not a PTY.
+
+Different tasks can run separate workers, up to 16 per application. One
+worker at a time owns each task; its editor is read-only during that job.
+The UI sleeps when idle and refreshes output only while jobs are active.
+Cancel signals the worker. Network waits observe cancellation; arbitrary
+child programs may require their own Quit action before the worker returns.
+
+GIT
+Changes offers Init repository, Status, Diff, and Stage source and commit.
+Set repository identity in the Shell tab before the first commit:
+  Termic:Tools/amiga-git/git config user.name "Your Name"
+  Termic:Tools/amiga-git/git config user.email you@example.com
+The commit action stages existing C/header files. Use the shell for deleted
+files, branches, remotes, fetch/push, merge, stash and other Git operations.
+Commit messages accept letters, digits, spaces and . , : / ( ) _ - .
+New repositories ignore build products and Termic job metadata. Existing
+.gitignore files are retained. No remote operation runs automatically.
+
+AGENT
+Enter task instructions, select a model and save an API key in Settings.
+The secret field never loads the existing key. Leaving it blank preserves
+that key. Start agent sends the task and requested source/compiler output
+to OpenAI. The model may list/read/write C/header files and build. It has
+no shell-command tool, and file tools reject device paths and traversal.
+Completed conversation IDs persist per task; New conversation resets the
+ID while retaining the transcript. API responses are stored for continuity.
+Each run makes at most eight requests. API access and billing are required.
+The default model is gpt-5-mini; choose a model available to your account.
+
+The local Config/api-key file is plaintext on classic AmigaOS. It is sent
+only as the HTTPS Authorization header to api.openai.com, never in command
+arguments, prompts, logs or installation packages. TLS verifies certificates
+and hostnames and requires TLS 1.2+. Test verified HTTPS expects HTTP 401
+without a key; it does not establish authenticated model access.
+
+SHORTCUTS
+F1 Agent; F2 Editor; F3 Build / Shell; F4 Changes; F5 Settings.
+F6 Build; F7 Run; F8 Save; F9 New task; F10 Quit.
+Shift+F1 starts the agent; Shift+F2 focuses the new filename (Enter creates).
+Shift+F3 focuses the shell command; Shift+F4 focuses the commit message.
+Enter executes the shell command or commits from those fields.
+Shift+F5 initializes Git; Shift+F6 shows status; Shift+F7 shows the diff;
+Shift+F8 marks done; Shift+F9 creates a project; Shift+F10 cancels a job.
+Text editing and clipboard keys follow TextEditor.mcc preferences.
+
+BOUNDARIES
+This native implementation does not run the React/Tauri frontend or desktop
+agent CLIs. There is no xterm terminal, streamed token display, automatic
+queue, broadcast/race mode, integrated remote PR UI or Git worktree support.
+The shell exposes the installed native Git client's additional commands.
+Task instructions: 8 KiB. Individual source: 32 KiB. Agent compiler output:
+16 KiB. HTTP response: 256 KiB. File list: 128 files, six directory levels.
+Network deadline: 120 seconds after DNS, whose timeout is stack-controlled.
+Long imports enumerate/copy synchronously; large trees can delay the UI.
+
+Classic AmigaOS provides no process sandbox: compiler jobs and generated
+programs retain normal OS access. Review changes before Run. After a worker
+crash, inspect its job.log and remove its .busy drawer only when the worker
+has stopped. One Termic installation should own the Termic: assign at a time.
 
 ZZ9000
-Uses the existing Workbench/RTG screen. No ARM payload is launched and no
-firmware, core ownership, DDR address, cache or display mode is changed.
-Compilation, file tools and HTTPS currently run on the 68k. ARM acceleration
-needs a separate measured compute workload and verified core reservation.
+The existing Workbench RTG display is used. Compilation, TLS and file work
+run on the 68k. No ARM payload, firmware or display-mode change is made.
+ARM acceleration needs a measured workload, exclusive core ownership and
+the verified shared-memory/cache contract from the hardware workspace.
+
+VERIFICATION
+Host: python3 scripts/amiga/test_native.py (synthetic API, ASan/UBSan).
+Hardware: scripts/amiga/accept_mui.py through the existing DevBench MCP.
+The hardware suite uses isolated fixtures and never submits a model request
+or reads credentials. See docs/amiga-development.md for verified scope.
 
 LICENSES
-Termic source: GNU AGPLv3, see LICENSE. cJSON 1.7.19: MIT, see
-Source/vendor/LICENSE.cJSON. The generated AmiSSL/OpenSSL binding subset is
-Apache-2.0, see Source/vendor/LICENSE.AmiSSL. SDK archives retain their
-upstream licenses.
-This product includes software developed by the University of California,
-Berkeley and its contributors (Roadshow networking headers).
-
-Sources: https://github.com/SkiltonUSA/termic
-API: https://developers.openai.com/api/docs/guides/function-calling
-AmiSSL: https://github.com/jens-maus/amissl/releases/tag/5.23
+Termic: GNU AGPLv3 (LICENSE). cJSON: MIT (Source/vendor/LICENSE.cJSON).
+AmiSSL bindings: Apache 2.0 (Source/vendor/LICENSE.AmiSSL).
+MUI and TextEditor headers are obtained from their original SDK archives;
+muimaster ABI bindings are in Source/mui_compat.h. TextEditor is LGPL:
+https://github.com/amiga-mui/texteditor/tree/15.56
+amiga-git is freeware; its unmodified archive includes licences and libgit2
+patches. VBCC/NDK/MUI SDKs retain their own redistribution conditions.

@@ -8,3 +8,10 @@ Assign vincludeos3: Termic:SDK/vbcc_target_m68k-amigaos/targets/m68k-amigaos/inc
 Assign vincludeos3: Termic:SDK/NDK/Include_H ADD
 Assign vincludeos3: Termic:SDK/NDK/SANA+RoadshowTCP-IP/netinclude ADD
 Assign vlibos3: Termic:SDK/vbcc_target_m68k-amigaos/targets/m68k-amigaos/lib
+If EXISTS Termic:SDK/MUI/Developer/C/Include
+  Assign vincludeos3: Termic:SDK/MUI/Developer/C/Include ADD
+EndIf
+If EXISTS Termic:SDK/MCC_TextEditor/Developer/C/include
+  Assign vincludeos3: Termic:SDK/MCC_TextEditor/Developer/C/include ADD
+EndIf
+Assign vincludeos3: Termic:Source ADD

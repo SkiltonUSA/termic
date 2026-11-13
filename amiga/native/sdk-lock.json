@@ -14,5 +14,25 @@
   "amissl-sdk.lha": {
     "url": "https://github.com/jens-maus/amissl/releases/download/5.23/AmiSSL-5.23-SDK.lha",
     "sha256": "3eabab3119e00590ac18ff914b5a7a281764f18fa26cf0db7dd95c661b14e367"
+  },
+  "mui38dev.lha": {
+    "url": "https://github.com/amiga-mui/muidev/releases/download/3.8/mui38dev.lha",
+    "sha256": "8d28b0262fa6f43a9a8e114da368a9309256bbc2f99fa1c23d8e4c105d565722"
+  },
+  "texteditor.lha": {
+    "url": "https://github.com/amiga-mui/texteditor/releases/download/15.56/MCC_TextEditor-15.56.lha",
+    "sha256": "d239a8324684233c09999354399f25595996c7ba52b2f44627263eb9676abfe9"
+  },
+  "amiga-git.lha": {
+    "url": "https://aminet.net/dev/misc/amiga-git.lha",
+    "sha256": "d391f44bcc9cfe04561cd84d0f71ab05af2532d97730baf19dba9aa45973c22f"
+  },
+  "amissl527.lha": {
+    "url": "https://github.com/jens-maus/amissl/releases/download/5.27/AmiSSL-5.27-OS3.lha",
+    "sha256": "722476cfbf21c0caf6ff4a77e32ee8baf67d3045db0e9ff2ccce6c782bed5847"
+  },
+  "diskimage.lha": {
+    "url": "https://aminet.net/disk/misc/diskimage.lha",
+    "sha256": "c7dbc8d05a20b90328539e66bf59664e7621af0bca33dfb91e179bf2738d6abb"
   }
 }

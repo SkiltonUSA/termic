@@ -1,13 +1,23 @@
 FailAt 10
 Execute Termic:Setup
-CD Termic:Project
-If EXISTS Program
-  Delete Program
+If EXISTS Program.new
+  Delete Program.new
 EndIf
-vc +aos68k -cpu=68020 -O1 main.c -o Program.new -lamiga >build.log
+If EXISTS build-command.txt
+  Execute build-command.txt >build.log
+Else
+  vc +aos68k -cpu=68020 -O1 main.c -o Program.new -lamiga >build.log
+EndIf
 If WARN
   Type build.log
   Quit 20
+EndIf
+If NOT EXISTS Program.new
+  Echo "Build did not produce Program.new."
+  Quit 20
+EndIf
+If EXISTS Program
+  Delete Program
 EndIf
 Rename Program.new Program
 Protect Program +e
