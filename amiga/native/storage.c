@@ -1,6 +1,7 @@
 /* Mount our optional project image without replacing another application image.
  * --create formats only the new file created by this invocation. */
 #include "native.h"
+#include "version.h"
 #include "workspace.h"
 #include <ctype.h>
 #include <dos/dosextens.h>
@@ -12,6 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+const char version_tag[] = TERMIC_VERSION_TAG("TermicStorage");
 const char stack_size[] = "$STACK:32768";
 static int equal(const char *a, const char *b)
 {
@@ -144,6 +146,11 @@ int main(int argc, char **argv)
     BPTR lock;
     char canonical[384], temp[80], command[512], *text, *line, *end;
     FILE *f;
+    if (argc == 2 && !strcmp(argv[1], "--version"))
+    {
+        puts(version_tag + 7);
+        return 0;
+    }
     if (creating && !create_image())
         return 20;
     lock = Lock((STRPTR) "Termic:Projects.hdf", ACCESS_READ);

@@ -392,3 +392,5 @@ These are intentionally NOT covered by written specs — asserting them would be
 - **Isolation:** each spec creates its own task via `openTask()` and archives it in `after`; never assume the app launched on a particular view (self-establish it).
 
 Native syntax colours: `scripts/amiga/accept_colours.py` opens a fixture on hardware, edits and saves coloured C, checks the saved bytes against the expected plain source, reopens it, and captures the editor.
+
+Native About/version: `scripts/amiga/accept_about.py` checks all three Amiga version tags and CLI versions, Help from the editor, About close/reopen using Escape and Return, and captures About plus the versioned workspace header.

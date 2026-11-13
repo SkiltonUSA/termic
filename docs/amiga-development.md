@@ -39,6 +39,23 @@ contains installation steps, controls, shortcuts and limits.
 | Desktop agent CLIs | OpenAI HTTPS function calling; desktop Claude/Codex/Gemini executables are not available on 68k |
 | Queue, broadcast/races and remote PR UI | Not implemented in the native client |
 
+### Version and About
+
+The native Amiga version is **0.1.0 Beta**, independent of the desktop version.
+`amiga/native/version.h` supplies the workspace heading, About window, MUI
+application metadata, and embedded Amiga `$VER` tags for all three programs.
+The Amiga tag uses the numeric major.minor convention and includes the full
+version as extra information; use `Version Termic:TermicNative FILE FULL` or
+`Termic:TermicNative --version` to inspect it.
+
+The About toolbar button and Help key open a centred, application-owned MUI
+window, following the linked ZZ8-Bit launcher's lazy-create/reopen pattern.
+It contains the build date, credits, licence and source/support links.
+Escape, Return, Close and the window close gadget dismiss it without closing
+the workspace. `scripts/amiga/accept_about.py` checks the three executable
+version tags, opening/closing/reopening About and captures both windows on
+the physical Amiga.
+
 ### Installation and builds
 
 The target is AmigaOS 3.2 with MUI 3.8+, TextEditor.mcc 15.56, Fast RAM,

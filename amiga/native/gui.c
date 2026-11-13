@@ -3,6 +3,7 @@
 #include "mui_compat.h"
 #include "native.h"
 #include "syntax.h"
+#include "version.h"
 #include "workspace.h"
 #include <ctype.h>
 #include <devices/timer.h>
@@ -27,6 +28,7 @@ struct Library *MUIMasterBase, *IconBase, *DiskfontBase, *AslBase;
 struct GfxBase *GfxBase;
 static struct TextFont *bodyfont, *codefont;
 struct IntuitionBase *IntuitionBase;
+const char version_tag[] = TERMIC_VERSION_TAG("TermicNative");
 const char stack_size[] = "$STACK:262144";
 #define MAX_ITEMS 128
 #define PATH_SIZE 384
@@ -85,7 +87,9 @@ enum
     FOCUSFILE,
     FOCUSEDITOR,
     FOCUSCOMMIT,
-    FOCUSCOMMAND
+    FOCUSCOMMAND,
+    ABOUT,
+    ABOUTCLOSE
 };
 struct Job
 {
@@ -831,13 +835,58 @@ static int icon(const char *p)
     CloseLibrary(IconBase);
     return ok ? 0 : 20;
 }
+/* Same lazy, application-owned MUI window pattern as the ZZ8-Bit launcher. */
+static Object *about_window;
+static void open_about(void)
+{
+    Object *close_button;
+    if (!about_window)
+    {
+        about_window = WindowObject, MUIA_Window_Title, "About Termic Amiga",
+        MUIA_Window_SizeGadget, FALSE, MUIA_Window_NoMenus, TRUE, MUIA_Window_LeftEdge,
+        MUIV_Window_LeftEdge_Centered, MUIA_Window_TopEdge, MUIV_Window_TopEdge_Centered,
+        WindowContents, VGroup, InnerSpacing(16, 14), MUIA_Group_Spacing, 10, MUIA_Font,
+        bodyfont ? (ULONG)bodyfont : MUIV_Font_Normal, Child,
+        label("\33c\33bTermic Amiga " TERMIC_VERSION), Child,
+        label("\33cNative development workspace for AmigaOS"), Child, TextObject, TextFrame,
+        MUIA_Text_Contents,
+        "Version: " TERMIC_VERSION "   |   Build date: " TERMIC_VERSION_DATE "\n"
+        "Platform: AmigaOS 3.2 / 68020+ / MUI\n\n"
+        "Amiga adaptation: Dominic Skilton\n"
+        "Development assistance: Codex\n"
+        "Original Termic: Simion Agavriloaei and contributors\n\n"
+        "Interface: MUI (Stefan Stuntz), TextEditor.mcc contributors\n"
+        "Toolchain: VBCC, vasm, vlink and Amiga NDK\n"
+        "Libraries and tools: AmiSSL, cJSON, native Git\n"
+        "Amiga MCP bridge: geekychris and contributors\n"
+        "github.com/geekychris/amiga_mcp\n\n"
+        "Source and support: github.com/SkiltonUSA/termic\n"
+        "Original project: termic.dev\n"
+        "Licence: GNU AGPL v3 or later; dependencies retain their licences.",
+        End, Child, HGroup, Child, HVSpace, Child, close_button = button("Close", ABOUTCLOSE),
+        Child, HVSpace, End, End, End;
+        if (!about_window)
+        {
+            message("Unable to open About window.");
+            return;
+        }
+        DoMethod(app, OM_ADDMEMBER, about_window);
+        notify(about_window, MUIA_Window_CloseRequest, TRUE, ABOUTCLOSE);
+        notify(about_window, MUIA_Window_InputEvent, (ULONG) "-repeat esc", ABOUTCLOSE);
+        notify(about_window, MUIA_Window_InputEvent, (ULONG) "-repeat return", ABOUTCLOSE);
+        set(about_window, MUIA_Window_DefaultObject, close_button);
+    }
+    set(about_window, MUIA_Window_CloseRequest, FALSE);
+    set(about_window, MUIA_Window_Open, TRUE);
+    set(about_window, MUIA_Window_Activate, TRUE);
+}
 static int build_ui(void)
 {
     Object *body, *left, *right, *center;
     char *s;
     app = ApplicationObject, MUIA_Application_Title, "Termic", MUIA_Application_Base, "TERMIC",
-    MUIA_Application_SingleTask, TRUE, MUIA_Application_Description,
-    "Native Amiga development workspace", End;
+    MUIA_Application_Version, version_tag + 1, MUIA_Application_SingleTask, TRUE,
+    MUIA_Application_Description, "Native Amiga development workspace", End;
     if (!app)
         return 0;
     left = VGroup, MUIA_Group_Spacing, 6, MUIA_Weight, 22, Child, label("\33bPROJECTS"), Child,
@@ -855,12 +904,11 @@ static int build_ui(void)
     filename = label("main.c"), Child, HGroup, Child, button("Save", SAVE), Child,
     button("Undo", UNDO), Child, button("Redo", REDO), Child, button("Cut", CUT), Child,
     button("Copy", COPY), Child, button("Paste", PASTE), End, Child, editor(&source, 0), Child,
-    HGroup, Child, findtext = entry(120), Child,
-    button("Find", FIND), Child, button("Next", FINDNEXT), End, End, Child, VGroup, Child,
-    editor(&output, 1), Child, label("AmigaDOS command (runs in this workspace)"), Child,
-    command = entry(1024), Child, HGroup, Child, button("Execute", SHELL), Child,
-    button("Cancel job", CANCEL), End, End, Child, VGroup, Child, HGroup, Child,
-    button("Status", GITSTATUS), Child, button("Diff", DIFF), Child,
+    HGroup, Child, findtext = entry(120), Child, button("Find", FIND), Child,
+    button("Next", FINDNEXT), End, End, Child, VGroup, Child, editor(&output, 1), Child,
+    label("AmigaDOS command (runs in this workspace)"), Child, command = entry(1024), Child, HGroup,
+    Child, button("Execute", SHELL), Child, button("Cancel job", CANCEL), End, End, Child, VGroup,
+    Child, HGroup, Child, button("Status", GITSTATUS), Child, button("Diff", DIFF), Child,
     button("Init repository", GITINIT), End, Child, editor(&review, 1), Child,
     label("Commit message (configure Git identity in the shell first)"), Child, commit = entry(256),
     Child, button("Stage source and commit", GITCOMMIT), End, Child, VGroup, Child,
@@ -883,10 +931,11 @@ static int build_ui(void)
     button("Refresh files", REFRESH), Child,
     label("C, H, text and Markdown\nSelect to edit.\nSaves keep .bak copies."), End;
     body = VGroup, MUIA_Font, bodyfont ? (ULONG)bodyfont : MUIV_Font_Normal, MUIA_Group_Spacing, 7,
-    InnerSpacing(8, 6), Child, HGroup, Child, label("\33bTERMIC  /  AMIGA"), Child, HVSpace, Child,
-    button("Build", BUILD), Child, button("Run", RUN), Child, button("Settings", SETTINGS), Child,
-    button("Quit", QUIT), End, Child, HGroup, Child, left, Child, BalanceObject, End, Child, center,
-    Child, BalanceObject, End, Child, right, End, Child, status = label("Ready"), End;
+    InnerSpacing(8, 6), Child, HGroup, Child, label("\33bTERMIC / AMIGA " TERMIC_VERSION), Child,
+    HVSpace, Child, button("Build", BUILD), Child, button("Run", RUN), Child,
+    button("Settings", SETTINGS), Child, button("About", ABOUT), Child, button("Quit", QUIT), End,
+    Child, HGroup, Child, left, Child, BalanceObject, End, Child, center, Child, BalanceObject, End,
+    Child, right, End, Child, status = label("Ready"), End;
     win = WindowObject, MUIA_Window_Title, "Termic Amiga Workspace", MUIA_Window_ID,
     MAKE_ID('T', 'R', 'M', 'C'), MUIA_Window_Width, 1400, MUIA_Window_Height, 650, WindowContents,
     body, End;
@@ -894,6 +943,7 @@ static int build_ui(void)
         return 0;
     DoMethod(app, OM_ADDMEMBER, win);
     notify(win, MUIA_Window_CloseRequest, TRUE, QUIT);
+    notify(win, MUIA_Window_InputEvent, (ULONG) "-repeat help", ABOUT);
     notify(projects, MUIA_List_Active, MUIV_EveryTime, PROJECT);
     notify(tasks, MUIA_List_Active, MUIV_EveryTime, TASK);
     notify(files, MUIA_List_Active, MUIV_EveryTime, FILESEL);
@@ -939,6 +989,11 @@ int main(int argc, char **argv)
     int done = 0, result = 20, storage_failed = 0;
     BPTR root;
     char path[PATH_SIZE];
+    if (argc == 2 && !strcmp(argv[1], "--version"))
+    {
+        puts(version_tag + 7);
+        return 0;
+    }
     if (argc == 3 && !strcmp(argv[1], "--icon"))
         return icon(argv[2]);
     root = DupLock(GetProgramDir());
@@ -1045,6 +1100,13 @@ int main(int argc, char **argv)
             char *name;
             switch (id)
             {
+            case ABOUT:
+                open_about();
+                break;
+            case ABOUTCLOSE:
+                set(about_window, MUIA_Window_Open, FALSE);
+                set(win, MUIA_Window_Activate, TRUE);
+                break;
             case FOCUSFILE:
                 set(win, MUIA_Window_ActiveObject, newname);
                 break;

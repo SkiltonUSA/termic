@@ -1,4 +1,5 @@
 #include "native.h"
+#include "version.h"
 #include "workspace.h"
 #include <ctype.h>
 #include <dos/dosextens.h>
@@ -9,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+const char version_tag[] = TERMIC_VERSION_TAG("TermicAgent");
 const char stack_size[] = "$STACK:262144";
 int cancel_requested(void)
 {
@@ -153,6 +155,11 @@ int main(int argc, char **argv)
     unsigned long hash = 5381;
     const char *p;
     const char *path = "Termic:Project", *action = argc > 1 ? argv[1] : "--agent";
+    if (argc == 2 && !strcmp(argv[1], "--version"))
+    {
+        puts(version_tag + 7);
+        return 0;
+    }
     setvbuf(stdout, NULL, _IOLBF, 0);
     if (argc == 4 && !strcmp(argv[2], "--project"))
         path = argv[3];

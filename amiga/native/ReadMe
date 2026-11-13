@@ -41,6 +41,18 @@ To back up the image, close active jobs and use a Shell outside TMGIT:
   Termic:TermicStorage --eject
 Copy Projects.hdf, then run Termic:TermicStorage to mount it again.
 
+VERSION AND ABOUT
+The native Amiga version is defined in Source/version.h, independently of
+the desktop Termic version. The workspace header shows the native version.
+Choose About in the toolbar or press Help for the version, build date,
+credits, licence and source/support links. Escape, Return or Close dismiss
+that window. About can be reopened without restarting the workspace.
+All three executables support --version and AmigaDOS Version FILE FULL:
+  Termic:TermicNative --version
+  Version Termic:TermicNative FILE FULL
+The traditional Amiga tag uses major.minor; FULL also shows the complete
+native version and its Beta designation.
+
 WORKSPACE
 Left: projects, project naming/import, tasks and task status.
 Centre: Agent, Editor, Build / Shell, Changes and Settings tabs.
